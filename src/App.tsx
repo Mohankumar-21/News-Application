@@ -6,6 +6,8 @@ import { NewsProvider } from "./context/NewsContext";
 import Article from "./components/Article";
 import Favorites from "./components/Favorites";
 
+
+
 function App() {
   return (
     <NewsProvider>

@@ -24,6 +24,15 @@ const Favorites: React.FC = () => {
     navigate(`/article`, { state: { article } });
   };
 
+  const getRepeatedDescription = (description: string) => {
+    const lines = description.split("\n");
+    const requiredLines = 4;
+    while (lines.length < requiredLines) {
+      lines.push(...lines); 
+    }
+    return lines.slice(0, requiredLines).join("\n");
+  };
+
   return (
     <div className="p-4 pt-20">
       <h2 className="text-2xl font-semibold mb-6">Your Favorite Articles</h2>
@@ -49,7 +58,9 @@ const Favorites: React.FC = () => {
                 </div>
               )}
 
-              <p className="text-gray-600 line-clamp-5 text-justify">{article.description}</p>
+              <p className="text-gray-600 line-clamp-4 text-justify">
+                {getRepeatedDescription(article.description)}
+              </p>
 
               <button
                 onClick={(e) => {
