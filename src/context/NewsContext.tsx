@@ -47,23 +47,25 @@ const NewsProvider: React.FC<NewsProviderProps> = ({ children }) => {
     );
   };
 
-  const fetchNewsByCategory = async (category: string) => {
-    const apiKey = '164fcfb152c34b74b53e21221877ea07';
-    try {
-      const url = `https://newsapi.org/v2/top-headlines?country&category=${category}&apiKey=${apiKey}&removeduplicate=1`;
+const fetchNewsByCategory = async (category:string) => {
+  const apiKey = '164fcfb152c34b74b53e21221877ea07';
+  const proxyUrl = `https://api.allorigins.win/get?url=`;
+  const apiUrl = `https://newsapi.org/v2/top-headlines?country=us&category=${category}&apiKey=${apiKey}`;
+  const fetchUrl = `${proxyUrl}${encodeURIComponent(apiUrl)}`;
 
-      // const url = `https://newsdata.io/api/1/news?apikey=${apiKey}&language=en&image=1&removeduplicate=1&size=10&category=${category}`;
+  try {
+    const response = await fetch(fetchUrl);
+    const data = await response.json();
+    const articles = JSON.parse(data.contents).articles;  // parse the nested JSON response
+    setArticles((prev) => ({
+      ...prev,
+      [category]: articles,
+    }));
+  } catch (error) {
+    console.error("Error fetching news:", error);
+  }
+};
 
-      const response = await fetch(url);
-      const data = await response.json();
-      setArticles((prev) => ({
-        ...prev,
-        [category]: data.articles,
-      }));
-    } catch (error) {
-      console.error("Error fetching news:", error);
-    }
-  };
 
   useEffect(() => {
     [
