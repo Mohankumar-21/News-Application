@@ -56,7 +56,7 @@ const fetchNewsByCategory = async (category:string) => {
   try {
     const response = await fetch(fetchUrl);
     const data = await response.json();
-    const articles = JSON.parse(data.contents).articles;  // parse the nested JSON response
+    const articles = JSON.parse(data.contents).articles;  
     setArticles((prev) => ({
       ...prev,
       [category]: articles,
