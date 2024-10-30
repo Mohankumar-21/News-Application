@@ -88,7 +88,6 @@ const NewsDashboard: React.FC = () => {
   };
 
   const handleCardClick = (article: NewsArticle) => {
-    console.log("Card clicked:", article);
     navigate(`/article`, { state: { article } });
   };
 

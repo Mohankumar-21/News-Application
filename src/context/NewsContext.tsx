@@ -56,7 +56,6 @@ const NewsProvider: React.FC<NewsProviderProps> = ({ children }) => {
 
       const response = await fetch(url);
       const data = await response.json();
-      console.log(data);
       setArticles((prev) => ({
         ...prev,
         [category]: data.articles,
