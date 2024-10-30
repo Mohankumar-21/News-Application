@@ -48,7 +48,7 @@ const NewsProvider: React.FC<NewsProviderProps> = ({ children }) => {
   };
 
   const fetchNewsByCategory = async (category: string) => {
-    const apiKey = import.meta.env.VITE_PUBLIC_API_KEY;
+    const apiKey = '164fcfb152c34b74b53e21221877ea07';
     try {
       const url = `https://newsapi.org/v2/top-headlines?country&category=${category}&apiKey=${apiKey}&removeduplicate=1`;
 
