@@ -52,7 +52,7 @@ const NewsProvider: React.FC<NewsProviderProps> = ({ children }) => {
 
   const fetchNewsByCategory = async (category: string) => {
     const apiKey = "3cb36d11053543bf94286ec85084685d";
-    const proxyUrl = `https://api.allorigins.win/get?url=`;
+    // const proxyUrl = `https://api.allorigins.win/get?url=`;
     const apiUrl = `https://newsapi.org/v2/top-headlines?country=us&category=${category}&apiKey=${apiKey}`;
     // const fetchUrl = `${proxyUrl}${encodeURIComponent(apiUrl)}`;
     try {

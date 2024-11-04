@@ -35,7 +35,7 @@ const ChatBot: React.FC<ChatBotProps> = ({ closeChat }) => {
   const fetchBotResponse = async (query: string) => {
     setLoading(true);
     const apiKey = "3cb36d11053543bf94286ec85084685d";
-    const proxyUrl = `https://api.allorigins.win/get?url=`;
+    // const proxyUrl = `https://api.allorigins.win/get?url=`;
     const apiUrl = `https://newsapi.org/v2/everything?q=${encodeURIComponent(query)}&apiKey=${apiKey}`;
     // const fetchUrl = `${proxyUrl}${encodeURIComponent(apiUrl)}`;
 
