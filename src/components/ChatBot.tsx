@@ -17,7 +17,7 @@ const ChatBot: React.FC<ChatBotProps> = ({ closeChat }) => {
   useEffect(() => {
     const welcomeMessage: Message = {
       type: "bot",
-      text: "Hi, How can I help u?",
+      text: "Hi, how can I help you today?",
     };
     setMessages([welcomeMessage]);
   }, []);
@@ -34,17 +34,15 @@ const ChatBot: React.FC<ChatBotProps> = ({ closeChat }) => {
 
   const fetchBotResponse = async (query: string) => {
     setLoading(true);
-    const apiKey = "164fcfb152c34b74b53e21221877ea07";
+    const apiKey = "3cb36d11053543bf94286ec85084685d";
     const proxyUrl = `https://api.allorigins.win/get?url=`;
-    const apiUrl = `https://newsapi.org/v2/everything?q=${encodeURIComponent(
-      query
-    )}&apiKey=${apiKey}`;
+    const apiUrl = `https://newsapi.org/v2/everything?q=${encodeURIComponent(query)}&apiKey=${apiKey}`;
     const fetchUrl = `${proxyUrl}${encodeURIComponent(apiUrl)}`;
 
     try {
-      const response = await fetch(fetchUrl);
+      const response = await fetch(apiUrl);
       const data = await response.json();
-      const articles = JSON.parse(data.contents).articles;
+      const articles = data.articles;
 
       if (articles && articles.length > 0) {
         const article = articles[0];
@@ -74,10 +72,10 @@ const ChatBot: React.FC<ChatBotProps> = ({ closeChat }) => {
   };
 
   return (
-    <div className="fixed bottom-10 right-10 w-80 h-96 bg-gray-800 text-white shadow-lg rounded-lg p-4">
+    <div className="fixed bottom-10 right-10 w-80 h-96 bg-gray-900 text-white shadow-lg rounded-lg p-4 border border-gray-700">
       <button
         onClick={closeChat}
-        className="absolute top-2 right-2 bg-red-600 rounded-full h-8 w-8 p-1 text-white"
+        className="absolute top-2 right-2 bg-red-600 rounded-full h-8 w-8 flex items-center justify-center text-white hover:bg-red-700 transition duration-200"
       >
         X
       </button>
@@ -85,24 +83,18 @@ const ChatBot: React.FC<ChatBotProps> = ({ closeChat }) => {
         {messages.map((msg, index) => (
           <div
             key={index}
-            className={`flex ${
+            className={`flex mb-2 ${
               msg.type === "user" ? "justify-end" : "justify-start"
-            } mb-2`}
+            }`}
           >
             <div
-              className={`max-w-[75%] ${
-                msg.type === "user" ? "text-right" : "text-left"
-              } px-2 py-1 overflow-hidden`}
+              className={`max-w-[75%] p-2 rounded-lg ${
+                msg.type === "user"
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-700 text-gray-200"
+              }`}
             >
-              <p
-                className={
-                  msg.type === "user"
-                    ? "text-blue-400 text-xs"
-                    : "text-gray-200 text-xs text-pretty"
-                }
-              >
-                {msg.text}
-              </p>
+              <p className="text-xs">{msg.text}</p>
             </div>
           </div>
         ))}
@@ -113,12 +105,12 @@ const ChatBot: React.FC<ChatBotProps> = ({ closeChat }) => {
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          className="border text-violet-300 rounded-l w-full p-2 bg-gray-700 text-sm"
+          className="border border-gray-600 rounded-l w-full p-2 bg-gray-800 text-sm text-violet-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
           placeholder="Search any news here..."
         />
         <button
           onClick={handleSend}
-          className="bg-blue-600 text-white p-2 rounded-r text-sm"
+          className="bg-blue-600 text-white p-2 rounded-r text-sm hover:bg-blue-700 transition duration-200"
         >
           Send
         </button>

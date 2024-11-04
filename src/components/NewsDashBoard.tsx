@@ -1,90 +1,86 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext, useEffect, useMemo } from "react";
 import { NewsContext } from "../context/NewsContext";
-import { FaBars, FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { FaBookmark, FaRegBookmark } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import SearchBar from "./SearchBar";
-import Loader from "./Loader"; 
+import Loader from "./Loader";
 
 const categories = [
-  "general",
-  "technology",
-  "business",
-  "sports",
-  "science",
-  "politics",
-  "entertainment",
-  "health",
+  { name: "General", icon: "🌍" },
+  { name: "Technology", icon: "💻" },
+  { name: "Business", icon: "💼" },
+  { name: "Sports", icon: "⚽" },
+  { name: "Science", icon: "🔬" },
+  { name: "Politics", icon: "🏛️" },
+  { name: "Entertainment", icon: "🎬" },
+  { name: "Health", icon: "💉" },
 ];
+type ExploreLink = {
+  title: string;
+  url: string;
+  icon: string; 
+};
 
+const exploreMoreLinks: ExploreLink[] = [
+  { title: "Latest Tech News", url: "/category/technology", icon: "💻" },
+  { title: "Business Insights", url: "/category/business", icon: "💼" },
+  { title: "Sports Highlights", url: "/category/sports", icon: "⚽" },
+  { title: "Health Tips", url: "/category/health", icon: "💉" },
+  { title: "Entertainment Buzz", url: "/category/entertainment", icon: "🎬" },
+];
 type NewsArticle = {
   title: string;
   description: string;
   urlToImage: string;
-  content: string;
+  content?: string;
   url: string;
+  author?: string;
+  source?: { name: string; logo?: string };
 };
 
 const NewsDashboard: React.FC = () => {
   const context = useContext(NewsContext);
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [selectedCategory, setSelectedCategory] = useState<string>("general");
-  const [showCategories, setShowCategories] = useState<boolean>(false);
-  const [isMobile, setIsMobile] = useState<boolean>(window.innerWidth <= 768);
+  const [selectedCategory, setSelectedCategory] = useState<string>("General");
   const navigate = useNavigate();
 
-  const articlesPerPage = 8; 
-  const [currentPage, setCurrentPage] = useState(1);
-  const [loading, setLoading] = useState<boolean>(true); 
+  const articlesPerPage = 5;
+  const tredingsPgae =7 // Show 5 articles initially
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [loading, setLoading] = useState<boolean>(true);
 
-  if (!context) return <Loader />; 
+  if (!context) return <Loader />;
 
   const { articles, addToFavorites, removeFromFavorites, favorites } = context;
 
   useEffect(() => {
-   
     setLoading(true);
-    const timer = setTimeout(() => {
-      setLoading(false); 
-    }, 1000); 
-
-    return () => clearTimeout(timer); 
+    const timer = setTimeout(() => setLoading(false), 1000);
+    return () => clearTimeout(timer);
   }, [articles]);
 
-  const filteredArticles = (articles[selectedCategory] || []).filter(
-    (article: any) =>
-      article.title &&
-      article.description &&
-      article.title !== "[Removed]" &&
-      article.description !== "[Removed]" &&
-      article.title.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredArticles = useMemo(
+    () =>
+      (articles[selectedCategory.toLowerCase()] || []).filter(
+        (article: NewsArticle) =>
+          article.title &&
+          article.description &&
+          article.title !== "[Removed]" &&
+          article.description !== "[Removed]" &&
+          article.title.toLowerCase().includes(searchQuery.toLowerCase())
+      ),
+    [articles, selectedCategory, searchQuery]
   );
 
-
-  const totalPages = Math.ceil(filteredArticles.length / articlesPerPage);
-
- 
+  const totalArticles = filteredArticles.length;
   const displayedArticles = filteredArticles.slice(
-    (currentPage - 1) * articlesPerPage,
+    0,
     currentPage * articlesPerPage
   );
 
   const handleSearchChange = (query: string) => {
     setSearchQuery(query);
-    setCurrentPage(1); 
-  };
-
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth <= 768);
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  const getRepeatedDescription = (description: string) => {
-    const words = description.split(" ");
-    while (words.length < 50) {
-      words.push(...words);
-    }
-    return words.slice(0, 50).join(" ");
+    setCurrentPage(1);
   };
 
   const handleCardClick = (article: NewsArticle) => {
@@ -95,165 +91,188 @@ const NewsDashboard: React.FC = () => {
     return favorites.some((favorite) => favorite.url === article.url);
   };
 
-  const handleAddToFavorites = (e: React.MouseEvent<HTMLButtonElement>, article: NewsArticle) => {
-    e.stopPropagation(); 
-    console.log("Added to favorites:", article);
-    isFavorite(article) ? removeFromFavorites(article) : addToFavorites(article);
+  const handleAddToFavorites = (
+    e: React.MouseEvent<HTMLButtonElement>,
+    article: NewsArticle
+  ) => {
+    e.stopPropagation();
+    isFavorite(article)
+      ? removeFromFavorites(article)
+      : addToFavorites(article);
   };
 
-  const getPaginationButtons = () => {
-    const buttons = [];
-    const start = Math.max(1, currentPage - 1);
-    const end = Math.min(totalPages, currentPage + 1);
+  const trendingArticles = useMemo(() => {
+    return Object.values(articles)
+      .flat() 
+      .slice(0, currentPage*tredingsPgae ); 
+  }, [articles,currentPage]);
 
-    if (currentPage > 1) {
-      buttons.push(1);
-    }
-
-    for (let i = start; i <= end; i++) {
-      if (!buttons.includes(i)) {
-        buttons.push(i); 
-      }
-    }
-
-    if (end < totalPages) {
-      buttons.push(totalPages);
-    }
-
-    return buttons;
+  const handleShowMore = () => {
+    setCurrentPage((prevPage) => prevPage + 1); // Load more articles
   };
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-  };
+
 
   return (
-    <div className="p-4 pt-20">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex-grow md:flex-[1_3_0%]">
-          <SearchBar onSearch={handleSearchChange} />
-        </div>
-
-        {!isMobile && (
-          <div className="flex flex-wrap justify-between flex-[2_3_0%]">
-            {categories.map((category) => (
-              <button
-                key={category}
-                onClick={() => setSelectedCategory(category)}
-                className={`px-4 py-2 rounded ${
-                  selectedCategory === category
-                    ? "bg-blue-500 text-white"
-                    : "bg-gray-200 text-gray-700"
-                }`}
-              >
-                {category}
-              </button>
-            ))}
-          </div>
-        )}
-
-        {isMobile && (
-          <FaBars
-            onClick={() => setShowCategories(!showCategories)}
-            className="text-3xl cursor-pointer text-blue-500"
-          />
-        )}
+    <div className="p-4 pt-5 bg-gray-50 min-h-screen">
+      <div className="mb-4">
+        <SearchBar onSearch={handleSearchChange} className="w-64 mx-auto" />
       </div>
 
-      {isMobile && showCategories && (
-        <div className="flex flex-wrap flex-col gap-2 mb-4">
-          {categories.map((category) => (
-            <button
-              key={category}
-              onClick={() => {
-                setSelectedCategory(category);
-                setShowCategories(false);
-              }}
-              className={`px-4 py-2 rounded ${
-                selectedCategory === category
-                  ? "bg-blue-500 text-white"
-                  : "bg-gray-200 text-gray-700"
-              }`}
-            >
-              {category}
-            </button>
-          ))}
-        </div>
-      )}
+      <div className="flex overflow-x-auto mt-4 mb-6 py-3 px-2 rounded justify-around sticky top-0 z-10 bg-gray-100 space-x-4 lg:px-16 shadow-sm ">
+        {categories.map((category) => (
+          <button
+            key={category.name}
+            onClick={() => setSelectedCategory(category.name)}
+            className={`flex items-center gap-2 px-4 py-2 rounded-full transition duration-200 ease-in-out shadow-md ${
+              selectedCategory === category.name
+                ? "bg-blue-600 text-white"
+                : "bg-gradient-to-r from-indigo-200 to-purple-200 text-gray-900 hover:bg-blue-400"
+            }`}
+          >
+            <span className="text-lg">{category.icon}</span>
+            <span className="capitalize">{category.name}</span>
+          </button>
+        ))}
+      </div>
 
-      {loading ? ( 
+      {loading ? (
         <Loader />
       ) : (
-        <>
-          <div className="grid gap-5 mt-7 sm:grid-cols-2 lg:grid-cols-3 text-center xl:grid-cols-4">
-            {displayedArticles.length > 0 ? (
-              displayedArticles.map((article: any, index: number) => (
-                <div
-                  key={`${article.url}-${index}`}
-                  className="border-2 border-blue-200 p-4 rounded shadow transition duration-300 ease-in-out transform hover:shadow-xl hover:-translate-y-2 hover:scale-lg cursor-pointer"
-                  onClick={() => handleCardClick(article)}
-                >
-                  <h3 className="font-semibold text-justify text-lg line-clamp-2">
-                    {article.title}
-                  </h3>
-
-                  {article.urlToImage && (
-                    <div className="my-4 w-full h-40">
-                      <img
-                        src={article.urlToImage}
-                        alt={article.title}
-                        className="w-full h-full object-cover rounded"
-                      />
-                    </div>
-                  )}
-
-                  <p className="text-gray-600 line-clamp-5 text-justify">
-                    {getRepeatedDescription(article.description)}
-                  </p>
-
-                  <button
-                    onClick={(e) => handleAddToFavorites(e, article)} 
-                    className="px-4 py-2 mt-3 text-center bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-opacity-50 transition duration-200 ease-in-out"
-                  >
-                    {isFavorite(article) ? "Remove from Bookmarks" : "Add to Bookmarks"}
-                  </button>
+        <div className="flex">
+          <div className="flex-grow mr-4 w-full md:w-3/4">
+            <div className="grid mx-auto gap-5 mt-7 text-center md:ml-20">
+              {displayedArticles.length === 0 ? (
+                <div className="text-gray-500 text-xl font-semibold mt-10">
+                  No articles available.
                 </div>
-              ))
-            ) : (
-              <div>No articles found.</div>
-            )}
+              ) : (
+                displayedArticles.map((article, index) => (
+                  <div
+                    key={`${article.url}-${index}`}
+                    className="p-4 rounded shadow-sm border-b-2 hover:shadow-md transition-all transform hover:-translate-y-2 cursor-pointer flex bg-white"
+                    onClick={() => handleCardClick(article)}
+                  >
+                    <div className="flex-grow mr-4 w-2/4">
+                      {article.author && (
+                        <p className="text-gray-500 text-sm mt-1 mb-1 ml-1 text-left">
+                          <span className="font-semibold">Author:</span>{" "}
+                          {article.author}
+                        </p>
+                      )}
+                      <h3 className="font-semibold text-justify text-lg line-clamp-2">
+                        {article.title}
+                      </h3>
+                      <p className="text-gray-600 text-justify mt-2 line-clamp-1">
+                        {article.content || article.description}
+                        {article.content && article.content.length > 50
+                          ? "..."
+                          : ""}
+                      </p>
+                      {article.publishedAt &&
+                        (typeof article.publishedAt === "string" ||
+                          typeof article.publishedAt === "number") && (
+                          <p className="text-gray-500 text-sm mt-2 text-left">
+                            <span className="font-semibold">Published on:</span>{" "}
+                            {new Date(article.publishedAt).toLocaleDateString()}
+                          </p>
+                        )}
+                      <button
+                        onClick={(e) => handleAddToFavorites(e, article)}
+                        className="mt-2 flex ml-1 text-blue-500 hover:text-blue-600"
+                      >
+                        <span className="mr-1">⭐</span>
+                        <span className="mr-1">💡</span>
+                        {isFavorite(article) ? (
+                          <FaBookmark className="inline mt-1" />
+                        ) : (
+                          <FaRegBookmark className="inline mt-1" />
+                        )}
+                      </button>
+                    </div>
+                    <div className="w-1/4 flex justify-center">
+                      {article.urlToImage && (
+                        <img
+                          src={article.urlToImage}
+                          alt={article.title}
+                          className="w-24 h-24 object-cover rounded"
+                        />
+                      )}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+            <div className="flex justify-center">
+              {currentPage * articlesPerPage < totalArticles && (
+                <button
+                  onClick={handleShowMore}
+                  className="mt-5 mx-auto px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-full"
+                >
+                  Browse Recommended News
+                </button>
+              )}
+            </div>
           </div>
 
-          <div className="flex justify-center mt-7 space-x-2">
-            <button
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-              className={`px-4 py-2 border rounded ${currentPage === 1 ? "bg-gray-200 cursor-not-allowed" : "bg-blue-500 text-white"}`}
-            >
-              <FaChevronLeft />
-            </button>
+          <div className="hidden md:block md:w-1/4 space-y-4 mx-5">
+          
+            <div className="bg-gray-100 p-4 rounded-lg shadow-md">
+              <h2 className="text-xl  font-semibold mb-4 border-b pb-2">
+                Explore More
+              </h2>
+              <ul className="space-y-2 ">
+              {exploreMoreLinks.map((link) => (
+                  <li key={link.title} className="flex items-center mb-3">
+                    <span className="text-xl">{link.icon}</span>
+                    <a
+                      href={link.url}
+                      className="ml-2 text-blue-600 hover:underline"
+                    >
+                      {link.title}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="bg-gray-100 p-4 rounded-lg shadow-md">
+              <h2 className="text-xl font-semibold mb-4 border-b pb-2">
+                Trending Now
+              </h2>
+              {trendingArticles.length > 0 ? (
+                trendingArticles.map((article, index) => (
+                  <div
+                    key={`${article.url}-${index}`}
+                    onClick={() => handleCardClick(article)}
+                    className="flex items-start mb-4 cursor-pointer hover:bg-gray-200 transition-colors duration-200 rounded p-2"
+                  >
+                    {article.urlToImage && (
+                      <img
+                        src={article?.urlToImage}
+                        alt={article.title}
+                        className="w-16 h-16 object-cover rounded"
+                      />
+                    )}
+                    {
+                      article.title && (
+                        <div className="ml-2">
+                        <h3 className="font-medium text-sm">{article.title}</h3>
+                        <p className="text-xs text-gray-500">{article.source?.name}</p>
+                      </div>
+                      )
+                    }
+                   
+                  </div>
+                ))
+              ) : (
+                <p className="text-gray-500">No trending articles available.</p>
+              )}
+            </div>
 
-            {getPaginationButtons().map((page) => (
-              <button
-                key={page}
-                onClick={() => handlePageChange(page)}
-                className={`px-4 py-2 border rounded-full ${
-                  currentPage === page ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-700"
-                }`}
-              >
-                {page}
-              </button>
-            ))}
-
-            <button
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-              className={`px-4 py-2 border rounded ${currentPage === totalPages ? "bg-gray-200 cursor-not-allowed" : "bg-blue-500 text-white"}`}
-            >
-              <FaChevronRight />
-            </button>
+   
+    
           </div>
-        </>
+        </div>
       )}
     </div>
   );

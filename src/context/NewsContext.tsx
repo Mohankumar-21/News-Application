@@ -1,12 +1,15 @@
 import React, { createContext, useEffect, useState, ReactNode } from "react";
 
 type NewsArticle = {
+  source?: any;
+  author?: string;
+  content?: string;
+  publishedAt?: ReactNode;
   urlToImage: any;
   title: string;
   description: string;
   url: string;
   imageUrl?: string;
-  
 };
 
 type NewsProviderProps = {
@@ -47,25 +50,24 @@ const NewsProvider: React.FC<NewsProviderProps> = ({ children }) => {
     );
   };
 
-const fetchNewsByCategory = async (category:string) => {
-  const apiKey = '164fcfb152c34b74b53e21221877ea07';
-  const proxyUrl = `https://api.allorigins.win/get?url=`;
-  const apiUrl = `https://newsapi.org/v2/top-headlines?country=us&category=${category}&apiKey=${apiKey}`;
-  const fetchUrl = `${proxyUrl}${encodeURIComponent(apiUrl)}`;
-
-  try {
-    const response = await fetch(fetchUrl);
-    const data = await response.json();
-    const articles = JSON.parse(data.contents).articles;  
-    setArticles((prev) => ({
-      ...prev,
-      [category]: articles,
-    }));
-  } catch (error) {
-    console.error("Error fetching news:", error);
-  }
-};
-
+  const fetchNewsByCategory = async (category: string) => {
+    const apiKey = "3cb36d11053543bf94286ec85084685d";
+    const proxyUrl = `https://api.allorigins.win/get?url=`;
+    const apiUrl = `https://newsapi.org/v2/top-headlines?country=us&category=${category}&apiKey=${apiKey}`;
+    const fetchUrl = `${proxyUrl}${encodeURIComponent(apiUrl)}`;
+    try {
+      const response = await fetch(apiUrl);
+      const data = await response.json();
+      console.log(data);
+      const articles = data.articles;
+      setArticles((prev) => ({
+        ...prev,
+        [category]: articles,
+      }));
+    } catch (error) {
+      console.error("Error fetching news:", error);
+    }
+  };
 
   useEffect(() => {
     [

@@ -5,8 +5,7 @@ import NewsDashBoard from "./components/NewsDashBoard";
 import { NewsProvider } from "./context/NewsContext";
 import Article from "./components/Article";
 import Favorites from "./components/Favorites";
-
-
+import GetStarted from "./components/GetStarted";
 
 function App() {
   return (
@@ -14,8 +13,9 @@ function App() {
       <Router>
         <NavBar />
         <Routes>
-          <Route path="/" element={<NewsDashBoard />} />
-          <Route path="/:id" element={<Article/>} />
+          <Route path="/" element={<GetStarted />} />
+          <Route path="/dashboard" element={<NewsDashBoard />} />
+          <Route path="/:id" element={<Article />} />
           <Route path="/favorites" element={<Favorites />} />
           <Route path="*" element={<NewsDashBoard />} />
         </Routes>
