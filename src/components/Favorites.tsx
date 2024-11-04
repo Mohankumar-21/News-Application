@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 type NewsArticle = {
   title: string;
   description: string;
-  urlToImage: string;
+  urlToImage?: string;
   author?: string; 
   content?: string;
   url: string;
