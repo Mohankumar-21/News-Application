@@ -5,7 +5,7 @@ type NewsArticle = {
   author?: string;
   content?: string;
   publishedAt?: ReactNode;
-  urlToImage: any;
+  urlToImage?: any;
   title: string;
   description: string;
   url: string;

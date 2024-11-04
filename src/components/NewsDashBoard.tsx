@@ -31,7 +31,7 @@ const exploreMoreLinks: ExploreLink[] = [
 type NewsArticle = {
   title: string;
   description: string;
-  urlToImage: string;
+  urlToImage?: string;
   content?: string;
   url: string;
   author?: string;
