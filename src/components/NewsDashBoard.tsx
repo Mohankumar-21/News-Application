@@ -64,6 +64,7 @@ const NewsDashboard: React.FC = () => {
       (articles[selectedCategory.toLowerCase()] || []).filter(
         (article: NewsArticle) =>
           article.title &&
+          article.urlToImage &&
           article.description &&
           article.title !== "[Removed]" &&
           article.description !== "[Removed]" &&
